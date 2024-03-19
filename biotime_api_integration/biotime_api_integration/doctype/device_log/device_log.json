@@ -1,0 +1,233 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:id",
+ "creation": "2024-03-19 02:43:54.900015",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "id",
+  "emp",
+  "punch_time",
+  "emp_code",
+  "column_break_bvul",
+  "first_name",
+  "last_name",
+  "punch_state",
+  "column_break_nqde",
+  "department",
+  "position",
+  "punch_state_display",
+  "section_break_neuw",
+  "verify_type",
+  "verify_type_display",
+  "terminal_sn",
+  "temperature",
+  "terminal_alias",
+  "column_break_cwlb",
+  "work_code",
+  "gps_location",
+  "area_alias",
+  "is_mask",
+  "upload_time",
+  "synced",
+  "employee_check_in"
+ ],
+ "fields": [
+  {
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "label": "id",
+   "unique": 1
+  },
+  {
+   "fieldname": "emp",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "read_only": 1
+  },
+  {
+   "description": "Employee Check Time",
+   "fieldname": "punch_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Punch Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_bvul",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "First Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Last Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "punch_state",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Punch State",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_nqde",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "position",
+   "fieldtype": "Data",
+   "label": "Position",
+   "read_only": 1
+  },
+  {
+   "fieldname": "punch_state_display",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Punch State Display",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_neuw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "verify_type",
+   "fieldtype": "Data",
+   "label": "Verify Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verify_type_display",
+   "fieldtype": "Data",
+   "label": "Verify Type Display",
+   "read_only": 1
+  },
+  {
+   "fieldname": "terminal_sn",
+   "fieldtype": "Data",
+   "label": "Device ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "temperature",
+   "fieldtype": "Data",
+   "label": "Device Temperature",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cwlb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "work_code",
+   "fieldtype": "Data",
+   "label": "Work Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gps_location",
+   "fieldtype": "Data",
+   "label": "GPS Location",
+   "read_only": 1
+  },
+  {
+   "fieldname": "area_alias",
+   "fieldtype": "Data",
+   "label": "Area Alias",
+   "read_only": 1
+  },
+  {
+   "fieldname": "is_mask",
+   "fieldtype": "Data",
+   "label": "Is Mask",
+   "read_only": 1
+  },
+  {
+   "fieldname": "terminal_alias",
+   "fieldtype": "Data",
+   "label": "Device Alias",
+   "read_only": 1
+  },
+  {
+   "fieldname": "upload_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Upload Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "if checked then employee checkin created",
+   "fieldname": "synced",
+   "fieldtype": "Check",
+   "label": "Synced",
+   "read_only": 1
+  },
+  {
+   "description": "Must be same as in Employee",
+   "fieldname": "emp_code",
+   "fieldtype": "Data",
+   "label": "Attendance Device ID (Biometric/RF tag ID)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee_check_in",
+   "fieldtype": "Data",
+   "label": "Employee Checkin",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-03-19 20:48:29.660765",
+ "modified_by": "Administrator",
+ "module": "Biotime Api Integration",
+ "name": "Device Log",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

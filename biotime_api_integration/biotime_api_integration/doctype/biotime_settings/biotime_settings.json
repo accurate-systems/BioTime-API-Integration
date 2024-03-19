@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-03-18 23:29:12.670908",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "server_ip",
+  "column_break_wmtv",
+  "port",
+  "section_break_jltp",
+  "username",
+  "column_break_xptr",
+  "password",
+  "section_break_ncwz",
+  "last_synced_id"
+ ],
+ "fields": [
+  {
+   "description": "ex: http://192.168.136.11\nor\nex: http://domain_name",
+   "fieldname": "server_ip",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Server IP",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_wmtv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "ex: 8080",
+   "fieldname": "port",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Port",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_jltp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "the username to login the system",
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xptr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "the password to login the system",
+   "fieldname": "password",
+   "fieldtype": "Data",
+   "label": "Password",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_ncwz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "Last Transaction ID Synced",
+   "fieldname": "last_synced_id",
+   "fieldtype": "Int",
+   "label": "Last Synced ID"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-03-19 21:54:31.061033",
+ "modified_by": "Administrator",
+ "module": "Biotime Api Integration",
+ "name": "BioTime Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

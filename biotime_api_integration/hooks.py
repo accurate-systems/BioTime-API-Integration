@@ -1,13 +1,10 @@
-from . import __version__ as app_version
-
 app_name = "biotime_api_integration"
 app_title = "Biotime Api Integration"
-app_publisher = "biotime_api_integration"
-app_description = "biotime_api_integration"
-app_icon = "octicon octicon-file-directory"
-app_color = "grey"
-app_email = "biotime_api_integration@"
-app_license = "MIT"
+app_publisher = "BioTime"
+app_description = "Bio Time"
+app_email = "biotim@biotime.com"
+app_license = "mit"
+# required_apps = []
 
 # Includes in <head>
 # ------------------
@@ -36,6 +33,11 @@ app_license = "MIT"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
+# Svg Icons
+# ------------------
+# include app icons in desk
+# app_include_icons = "biotime_api_integration/public/icons.svg"
+
 # Home Pages
 # ----------
 
@@ -44,7 +46,7 @@ app_license = "MIT"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Generators
@@ -52,6 +54,15 @@ app_license = "MIT"
 
 # automatically create page for each record of this doctype
 # website_generators = ["Web Page"]
+
+# Jinja
+# ----------
+
+# add methods and filters to jinja environment
+# jinja = {
+# 	"methods": "biotime_api_integration.utils.jinja_methods",
+# 	"filters": "biotime_api_integration.utils.jinja_filters"
+# }
 
 # Installation
 # ------------
@@ -65,6 +76,22 @@ app_license = "MIT"
 # before_uninstall = "biotime_api_integration.uninstall.before_uninstall"
 # after_uninstall = "biotime_api_integration.uninstall.after_uninstall"
 
+# Integration Setup
+# ------------------
+# To set up dependencies/integrations with other apps
+# Name of the app being installed is passed as an argument
+
+# before_app_install = "biotime_api_integration.utils.before_app_install"
+# after_app_install = "biotime_api_integration.utils.after_app_install"
+
+# Integration Cleanup
+# -------------------
+# To clean up dependencies/integrations with other apps
+# Name of the app being uninstalled is passed as an argument
+
+# before_app_uninstall = "biotime_api_integration.utils.before_app_uninstall"
+# after_app_uninstall = "biotime_api_integration.utils.after_app_uninstall"
+
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
@@ -76,11 +103,11 @@ app_license = "MIT"
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-#	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-#	"Event": "frappe.desk.doctype.event.event.has_permission",
+# 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
@@ -88,7 +115,7 @@ app_license = "MIT"
 # Override standard doctype classes
 
 # override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
+# 	"ToDo": "custom_app.overrides.CustomToDo"
 # }
 
 # Document Events
@@ -96,33 +123,39 @@ app_license = "MIT"
 # Hook on document methods and events
 
 # doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
+# 	"*": {
+# 		"on_update": "method",
+# 		"on_cancel": "method",
+# 		"on_trash": "method"
+# 	}
 # }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-#	"all": [
-#		"biotime_api_integration.tasks.all"
-#	],
-#	"daily": [
-#		"biotime_api_integration.tasks.daily"
-#	],
-#	"hourly": [
-#		"biotime_api_integration.tasks.hourly"
-#	],
-#	"weekly": [
-#		"biotime_api_integration.tasks.weekly"
-#	]
-#	"monthly": [
-#		"biotime_api_integration.tasks.monthly"
-#	]
-# }
+scheduler_events = {
+	# "all": [
+	# 	"biotime_api_integration.tasks.all"
+	# ],
+	# "daily": [
+	# 	"biotime_api_integration.tasks.daily"
+	# ],
+	# "hourly": [
+	# 	"biotime_api_integration.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"biotime_api_integration.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"biotime_api_integration.tasks.monthly"
+	# ],
+    "cron": {
+        "*/30 * * * *": [
+            "biotime_api_integration.biotime_device_log.employee_check_in_device_log"
+        ],
+        
+    }
+}
 
 # Testing
 # -------
@@ -133,19 +166,24 @@ app_license = "MIT"
 # ------------------------------
 #
 # override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "biotime_api_integration.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "biotime_api_integration.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-#	"Task": "biotime_api_integration.task.get_dashboard_data"
+# 	"Task": "biotime_api_integration.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
+
+# Ignore links to specified DocTypes when deleting documents
+# -----------------------------------------------------------
+
+# ignore_links_on_delete = ["Communication", "ToDo"]
 
 # Request Events
 # ----------------
@@ -160,31 +198,38 @@ app_license = "MIT"
 # User Data Protection
 # --------------------
 
-user_data_fields = [
-	{
-		"doctype": "{doctype_1}",
-		"filter_by": "{filter_by}",
-		"redact_fields": ["{field_1}", "{field_2}"],
-		"partial": 1,
-	},
-	{
-		"doctype": "{doctype_2}",
-		"filter_by": "{filter_by}",
-		"partial": 1,
-	},
-	{
-		"doctype": "{doctype_3}",
-		"strict": False,
-	},
-	{
-		"doctype": "{doctype_4}"
-	}
-]
+# user_data_fields = [
+# 	{
+# 		"doctype": "{doctype_1}",
+# 		"filter_by": "{filter_by}",
+# 		"redact_fields": ["{field_1}", "{field_2}"],
+# 		"partial": 1,
+# 	},
+# 	{
+# 		"doctype": "{doctype_2}",
+# 		"filter_by": "{filter_by}",
+# 		"partial": 1,
+# 	},
+# 	{
+# 		"doctype": "{doctype_3}",
+# 		"strict": False,
+# 	},
+# 	{
+# 		"doctype": "{doctype_4}"
+# 	}
+# ]
 
 # Authentication and authorization
 # --------------------------------
 
 # auth_hooks = [
-#	"biotime_api_integration.auth.validate"
+# 	"biotime_api_integration.auth.validate"
 # ]
+
+# Automatically update python controller files with type annotations for this app.
+# export_python_type_annotations = True
+
+# default_log_clearing_doctypes = {
+# 	"Logging DocType Name": 30  # days to retain logs
+# }
 
