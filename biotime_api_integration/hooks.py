@@ -1,8 +1,8 @@
 app_name = "biotime_api_integration"
 app_title = "Biotime Api Integration"
-app_publisher = "BioTime"
+app_publisher = "Ahmed Emam"
 app_description = "Bio Time"
-app_email = "biotim@biotime.com"
+app_email = "ahmedemamhatem@gmail.com"
 app_license = "mit"
 # required_apps = []
 
@@ -233,3 +233,14 @@ scheduler_events = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = [
+    {"dt": "Custom Field", "filters": [
+        [
+            "name", "in", [
+                "Employee Checkin-punch_type",
+                "Employee Checkin-device_log",
+                "Employee Checkin-device"
+            ]
+        ]
+    ]}
+]

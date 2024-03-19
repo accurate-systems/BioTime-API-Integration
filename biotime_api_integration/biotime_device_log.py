@@ -1,6 +1,8 @@
 import frappe
 import json
 import requests
+from frappe.utils import now_datetime
+
 
 def get_token():
     """
@@ -47,8 +49,8 @@ def get_response(next_url=None):
     except Exception as e:
         # insert into Sync Logs
         frappe.log_error(frappe.get_traceback(), ("Sync Error"))
-        frappe.db.sql("INSERT INTO `tabSync Logs` (title, response) VALUES (%s, %s)", ("Sync Error", str(e)))
-
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                    (frappe.generate_hash("", 10), "Sync Error", str(e)))
 def update_employee_logs_seq(row):
     """
     Function to update the last synced ID in the BioTime Settings.
@@ -59,32 +61,60 @@ def update_employee_logs_seq(row):
     biotime_settings.last_synced_id = row["id"]
     biotime_settings.save(ignore_permissions=True)
     frappe.db.commit()
+
 def employee_check_in_device_log():
     """
-    Function to check in employee device log.
-    It fetches the response from the device and updates the device log and employee logs accordingly.
+    Function to check in employee BioTime Device Log.
+    It fetches the response from the device and updates the BioTime Device Log and employee logs accordingly.
     """
     response = get_response()
     next_url= response["next"]
     try:
+        formatted_data = ""  
+        response_list = []  
+
         while next_url and response["count"] > 10:
-            # my logic
             for row in response["data"]:
-                if not frappe.db.exists("Device Log", row["id"]):
-                    row["doctype"] = "Device Log"
+                if not frappe.db.exists("BioTime Device Log", row["id"]):
+                    row["doctype"] = "BioTime Device Log"
                     biotime_device_log = frappe.get_doc(row)
                     biotime_device_log.save(ignore_permissions=True)
                     update_employee_logs_seq(row)
+                    response_list.append(row)  # Append row to response_list
             response = get_response(next_url=next_url)
-            next_url= response["next"]
+            next_url = response["next"]
         else:
             for row in response["data"]:
-                if not frappe.db.exists("Device Log", row["id"]):
-                    row["doctype"] = "Device Log"
+                if not frappe.db.exists("BioTime Device Log", row["id"]):
+                    row["doctype"] = "BioTime Device Log"
                     biotime_device_log = frappe.get_doc(row)
                     biotime_device_log.save()
                     update_employee_logs_seq(row)
+                    response_list.append(row)  # Append row to response_list
+
+        update_employee_id_on_system()
+
+        # Accumulate the data into formatted_data variable
+        for item in response_list:
+            formatted_data += f"ID: {item['id']}, Emp Code: {item['emp_code']}, Punch Time: {item['punch_time']}, Punch State: {item['punch_state_display']}\n\n"
+
+        # insert into Sync Logs success
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+              (frappe.generate_hash("", 10), "Sync Success", formatted_data))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), ("Sync Error"))
-        frappe.db.sql("INSERT INTO `tabSync Logs` (title, response) VALUES (%s, %s)", ("Sync Error", str(e)))
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                    (frappe.generate_hash("", 10), "Sync Error", str(e)))
 
+def update_employee_id_on_system():
+    # SQL query to update employee_id_on_system in tabBioTime Device Log
+    sql_query = """
+        UPDATE `tabBioTime Device Log` AS log
+        JOIN `tabEmployee` AS emp ON emp.attendance_device_id = log.emp_code
+        SET log.employee_id_on_system = emp.name
+    """
+    # Execute the SQL query
+    frappe.db.sql(sql_query)
+
+    # Commit the transaction
+    frappe.db.commit()

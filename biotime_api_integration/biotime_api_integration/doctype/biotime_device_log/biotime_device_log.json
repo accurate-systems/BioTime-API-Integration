@@ -9,6 +9,7 @@
  "field_order": [
   "id",
   "emp",
+  "employee_id_on_system",
   "punch_time",
   "emp_code",
   "column_break_bvul",
@@ -39,14 +40,13 @@
    "fieldname": "id",
    "fieldtype": "Data",
    "label": "id",
+   "read_only": 1,
    "unique": 1
   },
   {
    "fieldname": "emp",
    "fieldtype": "Int",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Employee",
+   "label": "Employee Id on Biotime",
    "read_only": 1
   },
   {
@@ -202,16 +202,24 @@
    "fieldtype": "Data",
    "label": "Employee Checkin",
    "read_only": 1
+  },
+  {
+   "fieldname": "employee_id_on_system",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee Id on System",
+   "options": "Employee",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-19 20:48:29.660765",
+ "modified": "2024-03-20 01:36:26.175849",
  "modified_by": "Administrator",
  "module": "Biotime Api Integration",
- "name": "Device Log",
- "naming_rule": "By fieldname",
+ "name": "BioTime Device Log",
  "owner": "Administrator",
  "permissions": [
   {
@@ -228,6 +236,5 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+ "sort_order": "DESC"
 }

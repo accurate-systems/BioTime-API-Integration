@@ -7,6 +7,10 @@ import requests
 import json
 from biotime_api_integration.biotime_device_log import employee_check_in_device_log
 
+import frappe
+import json
+import requests
+
 class BioTimeSettings(Document):
 	
 	@frappe.whitelist()
@@ -31,5 +35,6 @@ class BioTimeSettings(Document):
 	
 	@frappe.whitelist()
 	def sync_transactions(self):
+		self.check_connection()
 		employee_check_in_device_log()
-	
+

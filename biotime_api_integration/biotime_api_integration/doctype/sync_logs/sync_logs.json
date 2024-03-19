@@ -13,6 +13,8 @@
   {
    "fieldname": "title",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Title",
    "read_only": 1
   },
@@ -26,11 +28,10 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-19 20:54:59.645980",
+ "modified": "2024-03-20 01:43:57.789435",
  "modified_by": "Administrator",
  "module": "Biotime Api Integration",
  "name": "Sync Logs",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -47,6 +48,5 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+ "sort_order": "DESC"
 }
