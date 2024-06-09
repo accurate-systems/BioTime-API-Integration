@@ -4,7 +4,7 @@ authors = [
     { name = "BioTime", email = "biotim@biotime.com"}
 ]
 description = "Bio Time"
-requires-python = ">=3.10"
+requires-python = ">=3.7"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
