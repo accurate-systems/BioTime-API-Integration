@@ -10,19 +10,56 @@ def get_token():
     It uses the BioTime Settings to get the server IP, port, username, and password.
     It then sends a POST request to the server and returns the token from the response.
     """
-    biotime_settings = frappe.get_doc("BioTime Settings")
-    url = f"{biotime_settings.server_ip}:{biotime_settings.port}/api-token-auth/"
-    headers = {
-        "Content-Type": "application/json",
-    }
-    data = {
-        "username": biotime_settings.username,
-        "password": biotime_settings.password,
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    if response.json().get("non_field_errors"):
-        frappe.throw(response.json().get("non_field_errors")[0])
-    return response.json()["token"]
+    try:
+        biotime_settings = frappe.get_doc("BioTime Settings")
+        url = f"{biotime_settings.server_ip}:{biotime_settings.port}/api-token-auth/"
+        headers = {
+            "Content-Type": "application/json",
+        }
+        data = {
+            "username": biotime_settings.username,
+            "password": biotime_settings.password,
+            "email": biotime_settings.username,
+            "company": biotime_settings.company,
+        }
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+
+        # Check if the response is empty
+        if not response.content:
+            error_message = "Empty response from BioTime server."
+            frappe.log_error("Empty Response Error in get_token", "Token Empty Response Error")
+            frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                        (frappe.generate_hash("", 10), "Token Empty Response Error", error_message))
+            return None
+
+        response_json = response.json()
+
+        # Check if the token exists in the response
+        if "token" not in response_json:
+            error_message = "Token not found in the response."
+            frappe.log_error(frappe.get_traceback(), "Token Missing Error")
+            frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                        (frappe.generate_hash("", 10), "Token Missing Error", error_message))
+            return None
+
+        # Return the token if successful
+        return response_json["token"]
+
+    except requests.exceptions.RequestException as req_err:
+        error_message = f"Request Error in get_token: {str(req_err)}"
+        frappe.log_error(frappe.get_traceback(), "Token Request Error")
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                    (frappe.generate_hash("", 10), "Token Request Error", error_message))
+        return None
+
+    except Exception as e:
+        error_message = f"General Error in get_token: {str(e)}"
+        frappe.log_error(frappe.get_traceback(), "Token General Error")
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                    (frappe.generate_hash("", 10), "Token General Error", error_message))
+        return None
+
+
 
 def get_response(next_url=None):
     """
@@ -51,6 +88,8 @@ def get_response(next_url=None):
         frappe.log_error(frappe.get_traceback(), ("Sync Error"))
         frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
                     (frappe.generate_hash("", 10), "Sync Error", str(e)))
+        
+        
 def update_employee_logs_seq(row):
     """
     Function to update the last synced ID in the BioTime Settings.
@@ -62,14 +101,23 @@ def update_employee_logs_seq(row):
     biotime_settings.save(ignore_permissions=True)
     frappe.db.commit()
 
+
 def employee_check_in_device_log():
     """
     Function to check in employee BioTime Device Log.
     It fetches the response from the device and updates the BioTime Device Log and employee logs accordingly.
     """
-    response = get_response()
-    next_url= response["next"]
     try:
+        response = get_response()
+        
+        if not response:  # Check if response is None
+            error_message = "Response is None, failed to fetch data from BioTime device."
+            frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                          (frappe.generate_hash("", 10), "Initial Response Error", error_message))
+            print(error_message)
+            return
+
+        next_url = response.get("next")
         formatted_data = ""  
         response_list = []  
 
@@ -82,7 +130,15 @@ def employee_check_in_device_log():
                     update_employee_logs_seq(row)
                     response_list.append(row)  # Append row to response_list
             response = get_response(next_url=next_url)
-            next_url = response["next"]
+            
+            if not response:  # Check if response is None
+                error_message = "Response is None, failed to fetch next page from BioTime device."
+                frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                              (frappe.generate_hash("", 10), "Pagination Response Error", error_message))
+                print(error_message)
+                return
+            
+            next_url = response.get("next")
         else:
             for row in response["data"]:
                 if not frappe.db.exists("BioTime Device Log", row["id"]):
@@ -98,13 +154,16 @@ def employee_check_in_device_log():
         for item in response_list:
             formatted_data += f"ID: {item['id']}, Emp Code: {item['emp_code']}, Punch Time: {item['punch_time']}, Punch State: {item['punch_state_display']}\n\n"
 
-        # insert into Sync Logs success
+        # Insert into Sync Logs success
         frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
               (frappe.generate_hash("", 10), "Sync Success", formatted_data))
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), ("Sync Error"))
+        frappe.log_error(frappe.get_traceback(), "Sync Error")
+        error_message = str(e)
         frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
-                    (frappe.generate_hash("", 10), "Sync Error", str(e)))
+                    (frappe.generate_hash("", 10), "Unexpected Error", error_message))
+        print(error_message)
+
 
 def update_employee_id_on_system():
     # SQL query to update employee_id_on_system in tabBioTime Device Log

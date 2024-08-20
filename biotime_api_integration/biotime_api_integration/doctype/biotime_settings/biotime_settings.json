@@ -10,6 +10,7 @@
   "port",
   "section_break_jltp",
   "username",
+  "company",
   "column_break_xptr",
   "password",
   "section_break_ncwz",
@@ -67,12 +68,18 @@
    "fieldname": "last_synced_id",
    "fieldtype": "Int",
    "label": "Last Synced ID"
+  },
+  {
+   "description": "This company is from the Biotime account",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-03-19 21:54:31.061033",
+ "modified": "2024-08-20 11:23:27.841259",
  "modified_by": "Administrator",
  "module": "Biotime Api Integration",
  "name": "BioTime Settings",
