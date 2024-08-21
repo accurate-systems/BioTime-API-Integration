@@ -33,8 +33,25 @@ class BioTimeSettings(Document):
 			frappe.throw(response.json().get("non_field_errors")[0])
 		return response.json()
 	
+
+	
 	@frappe.whitelist()
 	def sync_transactions(self):
-		self.check_connection()
-		employee_check_in_device_log()
-
+		"""
+		Enqueue the employee_check_in_device_log function as a background job.
+		This function will run the check in the background without blocking the main process.
+		"""
+		try:
+			self.check_connection()
+			frappe.db.sql("UPDATE `tabBioTime Settings` SET last_synced_id = 0")
+			frappe.enqueue('biotime_api_integration.biotime_device_log.employee_check_in_device_log', 
+                       queue='long', 
+                       job_name='Employee Check In Device Log Job', 
+                       timeout=7200)
+			print("Job enqueued successfully.")
+		except Exception as e:
+			frappe.log_error(frappe.get_traceback(), "Enqueue Job Error")
+			error_message = str(e)
+			frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+						(frappe.generate_hash("", 10), "Enqueue Job Error", error_message))
+			print(error_message)

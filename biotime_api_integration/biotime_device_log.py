@@ -102,6 +102,7 @@ def update_employee_logs_seq(row):
     frappe.db.commit()
 
 
+        
 def employee_check_in_device_log():
     """
     Function to check in employee BioTime Device Log.
@@ -150,13 +151,9 @@ def employee_check_in_device_log():
 
         update_employee_id_on_system()
 
-        # Accumulate the data into formatted_data variable
-        for item in response_list:
-            formatted_data += f"ID: {item['id']}, Emp Code: {item['emp_code']}, Punch Time: {item['punch_time']}, Punch State: {item['punch_state_display']}\n\n"
-
         # Insert into Sync Logs success
         frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
-              (frappe.generate_hash("", 10), "Sync Success", formatted_data))
+              (frappe.generate_hash("", 10), "Sync Success", "All Logs Inserted"))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Sync Error")
         error_message = str(e)
