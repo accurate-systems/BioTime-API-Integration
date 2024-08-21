@@ -36,5 +36,9 @@ class BioTimeSettings(Document):
 	@frappe.whitelist()
 	def sync_transactions(self):
 		self.check_connection()
-		employee_check_in_device_log()
+		frappe.enqueue(
+        method=employee_check_in_device_log,  
+        queue='long',  
+        timeout=7200  
+   		 )
 
