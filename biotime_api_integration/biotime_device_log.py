@@ -1,7 +1,8 @@
 import frappe
 import json
 import requests
-from frappe.utils import now_datetime, now
+from frappe.utils import now_datetime
+
 
 def get_token():
     """
@@ -108,22 +109,17 @@ def employee_check_in_device_log():
     """
     try:
         response = get_response()
-
+        
         if not response:  # Check if response is None
             error_message = "Response is None, failed to fetch data from BioTime device."
-            frappe.db.sql("""
-                INSERT INTO `tabSync Logs` 
-                (name, title, response, creation, modified) 
-                VALUES (%s, %s, %s, %s, %s)""",
-                (frappe.generate_hash("", 10), "Initial Response Error", error_message, now(), now())
-            )
-            frappe.db.commit()  
+            frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                          (frappe.generate_hash("", 10), "Initial Response Error", error_message))
+            print(error_message)
             return
 
         next_url = response.get("next")
-        response_list = []
-        processed_records = 0
-        last_row = None
+        formatted_data = ""  
+        response_list = []  
 
         while next_url and response["count"] > 10:
             for row in response["data"]:
@@ -131,67 +127,43 @@ def employee_check_in_device_log():
                     row["doctype"] = "BioTime Device Log"
                     biotime_device_log = frappe.get_doc(row)
                     biotime_device_log.save(ignore_permissions=True)
-                    response_list.append(row)
-                    processed_records += 1
-                    last_row = row  # Track the last row
-
+                    update_employee_logs_seq(row)
+                    response_list.append(row)  # Append row to response_list
             response = get_response(next_url=next_url)
+            
             if not response:  # Check if response is None
                 error_message = "Response is None, failed to fetch next page from BioTime device."
-                frappe.db.sql("""
-                    INSERT INTO `tabSync Logs` 
-                    (name, title, response, creation, modified) 
-                    VALUES (%s, %s, %s, %s, %s)""",
-                    (frappe.generate_hash("", 10), "Pagination Response Error", error_message, now(), now())
-                )
-                frappe.db.commit()  
+                frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                              (frappe.generate_hash("", 10), "Pagination Response Error", error_message))
+                print(error_message)
                 return
-
+            
             next_url = response.get("next")
-
-        # Process the last or single page of data
-        for row in response["data"]:
-            if not frappe.db.exists("BioTime Device Log", row["id"]):
-                row["doctype"] = "BioTime Device Log"
-                biotime_device_log = frappe.get_doc(row)
-                biotime_device_log.save(ignore_permissions=True)
-                response_list.append(row)
-                processed_records += 1
-                last_row = row  # Track the last row
-
-        # Update the employee logs sequence for the last row
-        if last_row:
-            update_employee_logs_seq(last_row)
+        else:
+            for row in response["data"]:
+                if not frappe.db.exists("BioTime Device Log", row["id"]):
+                    row["doctype"] = "BioTime Device Log"
+                    biotime_device_log = frappe.get_doc(row)
+                    biotime_device_log.save()
+                    update_employee_logs_seq(row)
+                    response_list.append(row)  # Append row to response_list
 
         update_employee_id_on_system()
 
-        # Format the data for logging
-        formatted_data = "\n\n".join(
-            f"ID: {item['id']}, Emp Code: {item['emp_code']}, Punch Time: {item['punch_time']}, Punch State: {item['punch_state_display']}"
-            for item in response_list
-        )
+        # Accumulate the data into formatted_data variable
+        for item in response_list:
+            formatted_data += f"ID: {item['id']}, Emp Code: {item['emp_code']}, Punch Time: {item['punch_time']}, Punch State: {item['punch_state_display']}\n\n"
 
-        # Insert a success log
-        frappe.db.sql("""
-            INSERT INTO `tabSync Logs` 
-            (name, title, response, creation, modified) 
-            VALUES (%s, %s, %s, %s, %s)""",
-            (frappe.generate_hash("", 10), f"Sync Success - {processed_records} Records Processed", formatted_data, now(), now())
-        )
-        frappe.db.commit()  
-
+        # Insert into Sync Logs success
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+              (frappe.generate_hash("", 10), "Sync Success", formatted_data))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Sync Error")
         error_message = str(e)
-        frappe.db.sql("""
-            INSERT INTO `tabSync Logs` 
-            (name, title, response, creation, modified) 
-            VALUES (%s, %s, %s, %s, %s)""",
-            (frappe.generate_hash("", 10), "Unexpected Error", error_message, now(), now())
-        )
-        frappe.db.commit()  
+        frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
+                    (frappe.generate_hash("", 10), "Unexpected Error", error_message))
+        print(error_message)
 
-         
 
 def update_employee_id_on_system():
     # SQL query to update employee_id_on_system in tabBioTime Device Log
