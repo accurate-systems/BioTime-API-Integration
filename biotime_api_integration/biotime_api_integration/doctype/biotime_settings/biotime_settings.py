@@ -42,16 +42,23 @@ class BioTimeSettings(Document):
 		This function will run the check in the background without blocking the main process.
 		"""
 		try:
-			self.check_connection()
-			frappe.db.sql("UPDATE `tabBioTime Settings` SET last_synced_id = 0")
-			frappe.enqueue('biotime_api_integration.biotime_device_log.employee_check_in_device_log', 
-                       queue='long', 
-                       job_name='Employee Check In Device Log Job', 
-                       timeout=7200)
+			self.check_connection()  # Ensure connection is checked before syncing
+			frappe.enqueue(
+				'biotime_api_integration.biotime_device_log.employee_check_in_device_log',
+				queue='long',
+				job_name='Employee Check In Device Log Job',
+				timeout=7200
+			)
 			print("Job enqueued successfully.")
+			return {"status": "success"}
 		except Exception as e:
 			frappe.log_error(frappe.get_traceback(), "Enqueue Job Error")
 			error_message = str(e)
-			frappe.db.sql("INSERT INTO `tabSync Logs` (name, title, response, creation, modified) VALUES (%s, %s, %s, NOW(), NOW())", 
-						(frappe.generate_hash("", 10), "Enqueue Job Error", error_message))
+			frappe.db.sql(
+				"INSERT INTO `tabSync Logs` (name, title, response, creation, modified) "
+				"VALUES (%s, %s, %s, NOW(), NOW())",
+				(frappe.generate_hash("", 10), "Enqueue Job Error", error_message)
+			)
 			print(error_message)
+			# Return the error message for better client-side error handling
+			return {"status": "failed", "error": error_message}

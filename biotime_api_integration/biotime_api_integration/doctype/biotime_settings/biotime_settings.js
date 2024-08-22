@@ -1,6 +1,3 @@
-// Copyright (c) 2024, BioTime and contributors
-// For license information, please see license.txt
-
 frappe.ui.form.on("BioTime Settings", {
     refresh: function(frm) {
         frm.add_custom_button(__("Check Connection"), function() {
@@ -10,7 +7,7 @@ frappe.ui.form.on("BioTime Settings", {
             frm.events.sync_transactions(frm);
         });
     },
-	check_connection(frm) {
+    check_connection(frm) {
         frappe.call({
             method: "check_connection",
             doc: frm.doc,
@@ -18,18 +15,31 @@ frappe.ui.form.on("BioTime Settings", {
             callback: function(r) {
                 if (r.message) {
                     frappe.msgprint("Connection Successful");
-                    
+                } else {
+                    frappe.msgprint({
+                        title: __("Connection Failed"),
+                        indicator: "red",
+                        message: __("Unable to connect. Please check your settings and try again.")
+                    });
                 }
             }
         });
-	},
+    },
     sync_transactions(frm) {
         frappe.call({
             method: "sync_transactions",
             doc: frm.doc,
             freeze: true,
             callback: function(r) {
-                frappe.msgprint("Sync Successful");
+                if (r.message && r.message.status === "success") {
+                    frappe.msgprint("Sync Successful");
+                } else {
+                    frappe.msgprint({
+                        title: __("Sync Failed"),
+                        indicator: "red",
+                        message: r.message.error || __("An error occurred during the sync process.")
+                    });
+                }
                 frm.refresh();
             }
         });
